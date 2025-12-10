@@ -110,8 +110,8 @@ class Country
         $country->setIsoAlpha2($data['isoAlpha2'] ?? $data['iso_alpha2'] ?? null);
         $country->setIsoAlpha3($data['isoAlpha3'] ?? $data['iso_alpha3'] ?? null);
         $country->setIsoNumeric($data['isoNumeric'] ?? $data['iso_numeric'] ?? null);
-        $country->setPopulation($data['population'] ?? null);
-        $country->setSquare($data['square'] ?? null);
+        $country->setPopulation(isset($data['population']) ? (int)$data['population'] : null);
+        $country->setSquare(isset($data['square']) ? (float)$data['square'] : null);
         return $country;
     }
 }

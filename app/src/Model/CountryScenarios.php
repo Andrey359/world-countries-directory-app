@@ -18,7 +18,7 @@ class CountryScenarios
 
     /**
      * Получить все страны из справочника
-     * @return array Массив объектов Country
+     * Возвращает: Массив объектов Country
      */
     public function getAll(): array
     {
@@ -27,10 +27,9 @@ class CountryScenarios
 
     /**
      * Получить страну по коду (поддерживает Alpha-2, Alpha-3 или числовой)
-     * @param string $code Код страны
-     * @return Country Объект Country
-     * @throws InvalidCountryCodeException Если формат кода неверный
-     * @throws CountryNotFoundException Если страна не найдена
+     * Параметр: $code - код страны
+     * Возвращает: Объект Country
+     * Исключения: InvalidCountryCodeException, CountryNotFoundException
      */
     public function get(string $code): Country
     {
@@ -62,10 +61,8 @@ class CountryScenarios
 
     /**
      * Сохранить новую страну в справочник
-     * @param Country $country Объект Country для сохранения
-     * @return void
-     * @throws ValidationException Если валидация не пройдена
-     * @throws DuplicateCountryException Если страна с таким кодом или названием уже существует
+     * Параметр: $country - объект Country для сохранения
+     * Исключения: ValidationException, DuplicateCountryException
      */
     public function store(Country $country): void
     {
@@ -76,13 +73,10 @@ class CountryScenarios
 
     /**
      * Редактировать существующую страну по коду
-     * @param string $code Код страны для идентификации
-     * @param Country $country Обновленные данные страны (коды не должны меняться)
-     * @return Country Обновленный объект Country
-     * @throws InvalidCountryCodeException Если формат кода неверный
-     * @throws CountryNotFoundException Если страна не найдена
-     * @throws ValidationException Если валидация не пройдена
-     * @throws DuplicateCountryException Если обновленные данные конфликтуют с существующими
+     * Параметр: $code - код страны для идентификации
+     * Параметр: $country - обновленные данные страны (коды не должны меняться)
+     * Возвращает: Обновленный объект Country
+     * Исключения: InvalidCountryCodeException, CountryNotFoundException, ValidationException, DuplicateCountryException
      */
     public function edit(string $code, Country $country): Country
     {
@@ -117,10 +111,8 @@ class CountryScenarios
 
     /**
      * Удалить страну по коду
-     * @param string $code Код страны
-     * @return void
-     * @throws InvalidCountryCodeException Если формат кода неверный
-     * @throws CountryNotFoundException Если страна не найдена
+     * Параметр: $code - код страны
+     * Исключения: InvalidCountryCodeException, CountryNotFoundException
      */
     public function delete(string $code): void
     {
@@ -163,7 +155,7 @@ class CountryScenarios
         }
 
         if (empty(trim($country->getShortName() ?? ''))) {
-            throw new ValidationException('Короткое название не может быть пустым');
+            throw new ValidationException('Краткое название не может быть пустым');
         }
         if (empty(trim($country->getFullName() ?? ''))) {
             throw new ValidationException('Полное название не может быть пустым');
@@ -179,7 +171,7 @@ class CountryScenarios
     private function checkDuplicates(Country $country, ?string $excludeCode = null): void
     {
         if ($this->repository->existsByShortName($country->getShortName(), $excludeCode)) {
-            throw new DuplicateCountryException('короткое название', $country->getShortName());
+            throw new DuplicateCountryException('краткое название', $country->getShortName());
         }
         if ($this->repository->existsByFullName($country->getFullName(), $excludeCode)) {
             throw new DuplicateCountryException('полное название', $country->getFullName());

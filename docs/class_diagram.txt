@@ -1,0 +1,183 @@
+# Диаграмма классов - World Countries Directory API
+
+## Архитектура приложения
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                   PRESENTATION LAYER                         │
+├─────────────────────────────────────────────────────────────┤
+│                                                               │
+│  ┌──────────────────────┐      ┌──────────────────────┐     │
+│  │  StatusController    │      │ CountryController    │     │
+│  │                      │      │                      │     │
+│  │  - status()          │      │  - getAll()          │     │
+│  │  - ping()            │      │  - get(code)         │     │
+│  │                      │      │  - create(request)   │     │
+│  │                      │      │  - update(code, req) │     │
+│  │                      │      │  - delete(code)      │     │
+│  └──────────────────────┘      └──────────────────────┘     │
+│                                                               │
+└─────────────────────────────────────────────────────────────┘
+                           │
+                           │ depends on
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  BUSINESS LOGIC LAYER                        │
+├─────────────────────────────────────────────────────────────┤
+│                                                               │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │           CountryScenarios                            │   │
+│  │                                                        │   │
+│  │  + getAll(): Country[]                                │   │
+│  │  + get(code: string): Country                         │   │
+│  │  + store(country: Country): void                      │   │
+│  │  + edit(code: string, country: Country): Country     │   │
+│  │  + delete(code: string): void                         │   │
+│  │                                                        │   │
+│  │  - detectCodeType(code: string): string?             │   │
+│  │  - validateCountry(country: Country, codes: bool)    │   │
+│  │  - checkDuplicates(country: Country, code?: string)  │   │
+│  └──────────────────────────────────────────────────────┘   │
+│                                                               │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │       << interface >> CountryRepository              │   │
+│  │                                                        │   │
+│  │  + findAll(): Country[]                               │   │
+│  │  + findByAlpha2(code: string): Country?              │   │
+│  │  + findByAlpha3(code: string): Country?              │   │
+│  │  + findByNumeric(code: string): Country?             │   │
+│  │  + save(country: Country): void                       │   │
+│  │  + update(code: string, country: Country): void      │   │
+│  │  + delete(code: string): void                         │   │
+│  │  + existsByShortName(name: string, ...): bool        │   │
+│  │  + existsByFullName(name: string, ...): bool         │   │
+│  │  + existsByCode(code: string): bool                  │   │
+│  └──────────────────────────────────────────────────────┘   │
+│                                                               │
+└─────────────────────────────────────────────────────────────┘
+                           │
+                           │ implements
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                  DATA ACCESS LAYER                           │
+├─────────────────────────────────────────────────────────────┤
+│                                                               │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │        CountryStorage implements                      │   │
+│  │        CountryRepository                              │   │
+│  │                                                        │   │
+│  │  - sqlHelper: SqlHelper                               │   │
+│  │                                                        │   │
+│  │  + findAll(): Country[]                               │   │
+│  │  + findByAlpha2(code): Country?                       │   │
+│  │  + findByAlpha3(code): Country?                       │   │
+│  │  + findByNumeric(code): Country?                      │   │
+│  │  + save(country): void                                │   │
+│  │  + update(code, country): void                        │   │
+│  │  + delete(code): void                                 │   │
+│  │  + existsByShortName(...): bool                       │   │
+│  │  + existsByFullName(...): bool                        │   │
+│  │  + existsByCode(code): bool                           │   │
+│  │                                                        │   │
+│  │  - findByCodeColumn(column, value): Country?         │   │
+│  │  - mapRowToCountry(row): Country                     │   │
+│  │  - getCodeColumn(code): string                        │   │
+│  │  - normalizeCode(code): string                        │   │
+│  └──────────────────────────────────────────────────────┘   │
+│                                                               │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │         SqlHelper                                     │   │
+│  │                                                        │   │
+│  │  - host: string                                       │   │
+│  │  - username: string                                   │   │
+│  │  - password: string                                   │   │
+│  │  - database: string                                   │   │
+│  │  - port: int                                          │   │
+│  │                                                        │   │
+│  │  + openDbConnection(): mysqli                         │   │
+│  │  - pingDb(): void                                     │   │
+│  └──────────────────────────────────────────────────────┘   │
+│                                                               │
+└─────────────────────────────────────────────────────────────┘
+                           │
+                           │ uses
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    DOMAIN MODEL LAYER                        │
+├─────────────────────────────────────────────────────────────┤
+│                                                               │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │          Country                                      │   │
+│  │                                                        │   │
+│  │  - shortName: string?                                 │   │
+│  │  - fullName: string?                                  │   │
+│  │  - isoAlpha2: string?                                 │   │
+│  │  - isoAlpha3: string?                                 │   │
+│  │  - isoNumeric: string?                                │   │
+│  │  - population: int?                                   │   │
+│  │  - square: float?                                     │   │
+│  │                                                        │   │
+│  │  + getters/setters for all fields                     │   │
+│  │  + toArray(): array                                   │   │
+│  │  + fromArray(data): Country                           │   │
+│  └──────────────────────────────────────────────────────┘   │
+│                                                               │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │              << Exception >>                          │   │
+│  │       CountryNotFoundException                         │   │
+│  └──────────────────────────────────────────────────────┘   │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │              << Exception >>                          │   │
+│  │       InvalidCountryCodeException                     │   │
+│  └──────────────────────────────────────────────────────┘   │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │              << Exception >>                          │   │
+│  │           ValidationException                         │   │
+│  └──────────────────────────────────────────────────────┘   │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │              << Exception >>                          │   │
+│  │        DuplicateCountryException                      │   │
+│  └──────────────────────────────────────────────────────┘   │
+│                                                               │
+└─────────────────────────────────────────────────────────────┘
+                           │
+                           │ uses
+                           ▼
+┌─────────────────────────────────────────────────────────────┐
+│                    DATABASE LAYER                            │
+├─────────────────────────────────────────────────────────────┤
+│                                                               │
+│              MySQL Database (utf8mb4)                        │
+│                   countries table                            │
+│                                                               │
+│  - id (INT PRIMARY KEY AUTO_INCREMENT)                       │
+│  - short_name (VARCHAR(100) UNIQUE)                          │
+│  - full_name (VARCHAR(200) UNIQUE)                           │
+│  - iso_alpha2 (CHAR(2) UNIQUE)                               │
+│  - iso_alpha3 (CHAR(3) UNIQUE)                               │
+│  - iso_numeric (CHAR(3) UNIQUE)                              │
+│  - population (BIGINT UNSIGNED)                              │
+│  - square (DECIMAL(15,2) UNSIGNED)                           │
+│  - created_at (TIMESTAMP)                                    │
+│  - updated_at (TIMESTAMP)                                    │
+│                                                               │
+└─────────────────────────────────────────────────────────────┘
+
+## Поток данных
+
+1. HTTP Request → StatusController / CountryController
+2. CountryController → CountryScenarios (Business Logic)
+3. CountryScenarios → CountryRepository (Interface)
+4. CountryRepository → CountryStorage (Implementation)
+5. CountryStorage → SqlHelper (DB Connection)
+6. SqlHelper → MySQL Database
+7. Response travels back through layers
+
+## Ключевые особенности архитектуры
+
+✓ Separation of Concerns - каждый слой отвечает за свою область
+✓ Dependency Injection - используется во всех слоях
+✓ Interface-based design - CountryRepository как интерфейс
+✓ Exception handling - кастомные исключения для разных случаев
+✓ Validation - на уровне бизнес-логики
+✓ DTOs - Country как объект для передачи данных

@@ -1,0 +1,25 @@
+services:
+  _defaults:
+    autowire: true
+    autoconfigure: true
+
+  App\:
+    resource: '../src/'
+    exclude:
+      - '../src/DependencyInjection/'
+      - '../src/Entity/'
+      - '../src/Kernel.php'
+
+  App\Rdb\SqlHelper:
+    arguments:
+      $host: '%env(MYSQL_HOST)%'
+      $username: '%env(MYSQL_USER)%'
+      $password: '%env(MYSQL_PASSWORD)%'
+      $database: '%env(MYSQL_DATABASE)%'
+      $port: '%env(int:MYSQL_PORT)%'
+
+  App\Model\CountryRepository: '@App\Rdb\ХранилищеСтран'
+  
+  App\Rdb\ХранилищеСтран:
+    arguments:
+      $sqlHelper: '@App\Rdb\SqlHelper'

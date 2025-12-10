@@ -1,0 +1,16 @@
+# See the Symfony documentation for the full default config:
+# https://symfony.com/doc/current/reference/configuration/framework.html
+framework:
+    router:
+        utf8: true
+
+# Doctrine Configuration
+doctrine:
+    dbal:
+        driver: pdo_mysql
+        host: '%env(MYSQL_HOST)%'
+        port: '%env(MYSQL_PORT)%'
+        dbname: '%env(MYSQL_DATABASE)%'
+        user: '%env(MYSQL_USER)%'
+        password: '%env(MYSQL_PASSWORD)%'
+        charset: utf8mb4

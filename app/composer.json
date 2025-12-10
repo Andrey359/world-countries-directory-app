@@ -1,0 +1,40 @@
+{
+    "type": "project",
+    "license": "proprietary",
+    "description": "World Countries Directory API - Symfony Web Application",
+    "require": {
+        "php": ">=8.2",
+        "symfony/console": "^7.0",
+        "symfony/dotenv": "^7.0",
+        "symfony/framework-bundle": "^7.0",
+        "symfony/routing": "^7.0",
+        "symfony/runtime": "^7.0",
+        "symfony/yaml": "^7.0"
+    },
+    "require-dev": {
+        "symfony/maker-bundle": "^1.50"
+    },
+    "config": {
+        "allow-plugins": {
+            "symfony/flex": true,
+            "symfony/runtime": true
+        },
+        "sort-packages": true
+    },
+    "autoload": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "App\\": "src/"
+        }
+    },
+    "extra": {
+        "symfony": {
+            "allow-contrib": false,
+            "require": "7.0.*"
+        }
+    }
+}
